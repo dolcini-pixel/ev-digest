@@ -1,4 +1,5 @@
 import urllib.request
+import urllib.parse
 import json
 from datetime import datetime, timedelta
 from config import LOOKBACK_DAYS

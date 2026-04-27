@@ -1,24 +1,26 @@
 import urllib.request
+import urllib.parse
 import json
 from datetime import datetime, timedelta
 from config import LOOKBACK_DAYS
 
-LOB_BASE = "https://lobste.rs/api/v1/search?"
+LOB_BASE = "https://lobste.rs/api/v1/search_by_date?"
 
 def fetch_lobsters(topic, days=None):
     days = days or LOOKBACK_DAYS
     since = (datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%d")
     articles = []
     try:
-        q = topic.replace("-", " ")
+        q = topic.replace("-", "+")
         url = (
-            f"{LOB_BASE}q={urllib.parse.quote(q)}"
-            f"&created_at%3E={since}&per_page=30&fmt=json"
+            f"{LOB_BASE}?q={urllib.parse.quote(q)}"
+            f"&page=1&per_page=30"
         )
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=15) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-        for story in data if isinstance(data, list) else data.get("stories", []):
+        stories = data if isinstance(data, list) else data.get("stories", data.get("results", []))
+        for story in stories:
             articles.append({
                 "title": story.get("title", ""),
                 "url": story.get("url", f"https://lobste.rs/s/{story.get('short_id')}"),

@@ -14,7 +14,7 @@ def fetch_reddit(topic=None, days=None):
                 f"&t=week&restrict_type=1"
             )
             req = urllib.request.Request(url, headers={
-                "User-Agent": "Mozilla/5.0",
+                "User-Agent": "Mozilla/5.0 (compatible; EVdigest/1.0)",
                 "Accept": "application/json",
             })
             with urllib.request.urlopen(req, timeout=15) as resp:

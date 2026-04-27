@@ -1,7 +1,7 @@
 import urllib.request
 import urllib.parse
+import re
 import xml.etree.ElementTree as ET
-import html as html_mod
 from datetime import datetime, timedelta
 from config import ARXIV_KEYWORDS, LOOKBACK_DAYS
 
@@ -12,9 +12,10 @@ def fetch_arxiv(topic, days=None):
     keywords = ARXIV_KEYWORDS.get(topic, [topic.replace("-", " ")])
     query_parts = [f'all:{kw}' for kw in keywords]
     query = "+OR+".join(query_parts)
+    encoded_query = urllib.parse.quote(query, safe="")
     since = (datetime.utcnow() - timedelta(days=days)).strftime("%Y%m%d%H%M")
     url = (
-        f"{ARXIV_BASE}search_query={query}&start=0&max_results=30"
+        f"{ARXIV_BASE}search_query={encoded_query}&start=0&max_results=30"
         f"&sortBy=submittedDate&sortOrder=descending"
     )
     articles = []
@@ -33,7 +34,8 @@ def fetch_arxiv(topic, days=None):
             authors = [a.text or "" for a in author_els]
             title = title_el.text.strip().replace("\n", " ") if title_el is not None else "Untitled"
             summary = summary_el.text.strip() if summary_el is not None else ""
-            summary = html_mod.strip_tags(summary)[:500]
+            import re
+            summary = re.sub(r'<[^>]+>', '', summary)[:500]
             published = published_el.text[:10] if published_el is not None else ""
             url = link_el.text if link_el is not None else ""
             if url and "arxiv.org/abs/" in url:

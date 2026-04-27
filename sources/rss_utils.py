@@ -1,6 +1,6 @@
 import urllib.request
+import re
 import feedparser
-import html as html_mod
 from datetime import datetime, timedelta
 from config import RSS_FEEDS, LOOKBACK_DAYS
 
@@ -17,8 +17,7 @@ def _fetch_single_feed(feed_url, topic, source_name, cutoff):
     articles = []
     kw = topic.replace("-", " ").lower()
     try:
-        req = urllib.request.Request(feed_url, headers={"User-Agent": "Mozilla/5.0"})
-        feed = feedparser.parse(req)
+        feed = feedparser.parse(feed_url)
         for entry in feed.entries:
             pub_str = _parse_date(entry)
             if pub_str and _is_recent(pub_str, cutoff):
@@ -59,7 +58,7 @@ def _is_recent(date_str, cutoff):
 
 def _clean_summary(entry):
     raw = entry.get("summary") or entry.get("description") or ""
-    raw = html_mod.strip_tags(raw)
+    raw = re.sub(r'<[^>]+>', '', raw)
     raw = raw.replace("\n", " ").replace("  ", " ")
     return raw.strip()
 

@@ -1,7 +1,12 @@
 import os
-from dotenv import load_dotenv
-
-load_dotenv("/home/pdolcini/Python/serach_info/.env")
+_env_path = "/home/pdolcini/Python/serach_info/.env"
+if os.path.exists(_env_path):
+    with open(_env_path) as f:
+        for line in f:
+            line = line.strip()
+            if "=" in line and not line.startswith("#"):
+                k, v = line.split("=", 1)
+                os.environ[k.strip()] = v.strip().strip('"')
 
 OPENROUTER_API_KEY = os.getenv("API_KEY", "").strip('" ')
 GITHUB_REPO = "dolcini-pixel/ev-digest"
@@ -43,4 +48,4 @@ ARXIV_KEYWORDS = {
 
 LLM_MODEL = "openrouter/free"
 
-OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
