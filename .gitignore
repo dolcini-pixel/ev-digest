@@ -1,2 +1,4 @@
 repo/
 ev_digest.db
+__pycache__/
+*.pyc
